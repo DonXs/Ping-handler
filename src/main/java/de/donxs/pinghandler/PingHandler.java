@@ -1,5 +1,6 @@
 package de.donxs.pinghandler;
 
+import de.donxs.pinghandler.netty.PingChannelHandler;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;

@@ -1,5 +1,7 @@
-package de.donxs.pinghandler;
+package de.donxs.pinghandler.netty;
 
+import de.donxs.pinghandler.PingHandler;
+import de.donxs.pinghandler.PingResponse;
 import de.donxs.pinghandler.callback.Callback;
 import de.donxs.pinghandler.netty.NettyUtil;
 import io.netty.buffer.ByteBuf;
