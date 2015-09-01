@@ -11,6 +11,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.7</maven.compiler.source>
         <maven.compiler.target>1.7</maven.compiler.target>
+        <maven.plugins>org.apache.maven.plugins</maven.plugins>
         <netty.version>4.0.30.Final</netty.version>
     </properties>
     
@@ -58,20 +59,50 @@
             <scope>provided</scope>
         </dependency>
         
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
+        
+        <dependency>
+            <groupId>org.hamcrest</groupId>
+            <artifactId>hamcrest-junit</artifactId>
+            <version>2.0.0.0</version>
+            <scope>test</scope>
+        </dependency>
+        
     </dependencies>
     
     <build>
         <plugins>
             
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
+                <groupId>${maven.plugins}</groupId>
                 <artifactId>maven-clean-plugin</artifactId>
                 <version>2.6.1</version>
-                <goals>clean</goals>
+                <goals>
+                    <goal>shade</goal>
+                </goals>
             </plugin>
             
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
+                <groupId>${maven.plugins}</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.3</version>
+                <executions>
+                    <execution>
+                        <configuration>
+                            <source>${maven.compiler.source}</source>
+                            <target>${maven.compiler.target}</target>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <plugin>
+                <groupId>${maven.plugins}</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>2.3</version>
                 <executions>
@@ -82,7 +113,7 @@
                         </goals>
                         <configuration>
                             <shadedArtifactAttached>true</shadedArtifactAttached>
-                            <shadedClassifierName>final</shadedClassifierName>
+                            <finalName>${project.name}</finalName>
                         </configuration>
                     </execution>
                 </executions>
