@@ -19,7 +19,8 @@ public class PingHandlerTest {
     @Parameters
     public static Collection<Object[]> data() {
         return Arrays.asList(
-                new Object[][]{{"gommehd.net", 25565}}
+                new Object[][]{{"gommehd.net", 25565},
+                               {"devplanet.eu", 25565}}
         );
     }
 

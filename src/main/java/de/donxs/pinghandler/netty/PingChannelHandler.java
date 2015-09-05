@@ -17,8 +17,6 @@ public class PingChannelHandler extends SimpleChannelInboundHandler<ByteBuf> {
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, ByteBuf buffer) throws Exception {
-
-        System.out.println("Hier sind wir beim channelRead0");
         
         if (NettyUtil.readVarInt(buffer) == 0x00) {
 
