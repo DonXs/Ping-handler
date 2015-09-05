@@ -1,30 +1,21 @@
 package de.donxs.pinghandler;
 
-import de.donxs.pinghandler.netty.PingChannelHandler;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import de.donxs.pinghandler.callback.Callback;
-import de.donxs.pinghandler.netty.NettyUtil;
-import de.donxs.pinghandler.netty.Varint21FrameDecoder;
-import de.donxs.pinghandler.netty.Varint21FrameEncoder;
+import de.donxs.pinghandler.netty.*;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelFutureListener;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
-import io.netty.channel.epoll.Epoll;
-import io.netty.channel.epoll.EpollEventLoopGroup;
-import io.netty.channel.epoll.EpollSocketChannel;
+import io.netty.channel.*;
+import io.netty.channel.epoll.*;
 import io.netty.channel.nio.NioEventLoopGroup;
+import io.netty.channel.socket.DatagramChannel;
 import io.netty.channel.socket.SocketChannel;
+import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.timeout.ReadTimeoutHandler;
-import java.net.InetSocketAddress;
 import java.util.concurrent.TimeUnit;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -39,12 +30,13 @@ import lombok.RequiredArgsConstructor;
 public class PingHandler {
 
     private static final Class<? extends SocketChannel> SOCKET_CHANNEL = Epoll.isAvailable() ? EpollSocketChannel.class : NioSocketChannel.class;
+    private static final Class<? extends DatagramChannel> DATAGRAM_CHANNEL = Epoll.isAvailable() ? EpollDatagramChannel.class : NioDatagramChannel.class;
     private final EventLoopGroup eventLoop = Epoll.isAvailable() ? new EpollEventLoopGroup(1, new ThreadFactoryBuilder().setNameFormat("PingHandler-Thread-#").build()) : new NioEventLoopGroup(1, new ThreadFactoryBuilder().setNameFormat("PingHandler-Thread-#").build());
     private final Gson gson = new GsonBuilder().create();
 
     private Channel channel;
 
-    public PingHandler fetch(final InetSocketAddress address, final Callback<PingResponse> callback) {
+    public PingHandler fetch(final String address, final int port, final Callback<PingResponse> callback) {
 
         new Bootstrap()
                 .channel(SOCKET_CHANNEL)
@@ -68,7 +60,7 @@ public class PingHandler {
 
                 })
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 5000)
-                .connect(address)
+                .connect(address, port)
                 .addListener(new ChannelFutureListener() {
 
                     @Override
@@ -78,8 +70,8 @@ public class PingHandler {
 
                         NettyUtil.writeVarInt(0x00, handshake);
                         NettyUtil.writeVarInt(47, handshake);
-                        NettyUtil.writeString(address.getAddress().getHostAddress(), handshake);
-                        handshake.writeShort(25565);
+                        NettyUtil.writeString(address, handshake);
+                        handshake.writeShort(port);
                         NettyUtil.writeVarInt(1, handshake);
 
                         channel.writeAndFlush(handshake).sync();

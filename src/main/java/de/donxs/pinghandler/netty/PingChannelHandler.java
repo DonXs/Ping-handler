@@ -3,7 +3,6 @@ package de.donxs.pinghandler.netty;
 import de.donxs.pinghandler.PingHandler;
 import de.donxs.pinghandler.PingResponse;
 import de.donxs.pinghandler.callback.Callback;
-import de.donxs.pinghandler.netty.NettyUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -19,12 +18,17 @@ public class PingChannelHandler extends SimpleChannelInboundHandler<ByteBuf> {
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, ByteBuf buffer) throws Exception {
 
+        System.out.println("Hier sind wir beim channelRead0");
+        
         if (NettyUtil.readVarInt(buffer) == 0x00) {
 
             String json = NettyUtil.readString(buffer);
             ctx.close();
+            
+            PingResponse response = this.handler.getGson().fromJson(json, PingResponse.class);
+            response.setPlainjson(json);
 
-            callback.done(this.handler.getGson().fromJson(json, PingResponse.class), null);
+            callback.done(response, null);
 
         }
 

@@ -6,6 +6,8 @@ import lombok.Data;
 @Data
 public class PingResponse {
 
+    private String plainjson;
+
     private Version version;
     private Players players;
     private String description;
